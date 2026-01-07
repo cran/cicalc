@@ -78,7 +78,7 @@ combine_strata <- function(x, strata){
 print.prop_ci_uni <- function(x, ...){
   cli::cli_h1(x$method)
   cli::cli_li("{x$n} response{?s} out of {x$N}")
-  cli::cli_li("Estimate: {x$estimate}")
+  cli::cli_li("Estimate: {round(x$estimate, 4)}")
   cli::cli_li("{x$conf.level*100}% Confidence Interval:")
   cli::cli_text("\u00a0\u00a0({round(x$conf.low, 4)}, {round(x$conf.high, 4)})")
 }
@@ -148,5 +148,31 @@ print.stratified_miettinen_nurminen <- function(x, ...){
         cli::cli_li("At {d} the statistic is {round(s, 3)} and the p-value is {round(p, 4)}")
       })
   }
+  invisible(x)
+}
+
+
+#' @export
+print.ci_prop_diff_mh_strata <- function(x, ...){
+
+  diff_str <- paste0(x$n, "/", x$N, collapse = " - ")
+  cli::cli_h1(x$method)
+  cli::cli_li("{diff_str}")
+  cli::cli_li("Estimate: {round(x$estimate, 3)}")
+  cli::cli_li("Variance: {round(x$variance, 3)}")
+  cli::cli_li("{x$conf.level*100}% Confidence Interval:")
+  cli::cli_text("\u00a0\u00a0({round(x$conf.low, 4)}, {round(x$conf.high, 4)})")
+  invisible(x)
+}
+
+#' @export
+print.ci_rel_risk_cmh_strata <- function(x, ...){
+  diff_str <- paste0(x$n, "/", x$N, collapse = " - ")
+  cli::cli_h1(x$method)
+  cli::cli_li("{diff_str}")
+  cli::cli_li("Estimate: {round(x$estimate, 3)}")
+  cli::cli_li("Variance: {round(x$variance, 3)}")
+  cli::cli_li("{x$conf.level*100}% Confidence Interval:")
+  cli::cli_text("\u00a0\u00a0({round(x$conf.low, 4)}, {round(x$conf.high, 4)})")
   invisible(x)
 }
