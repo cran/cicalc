@@ -124,9 +124,24 @@ ci_prop_diff_mn <- function(x, by, conf.level = 0.95, delta = NULL, data = NULL)
   df <- get_counts(x = x, by = by)
 
   alpha <- 1 - conf.level
-
-  if(df$response_1 == 0 | df$response_2 == 0 | df$response_1 == df$response_2){
-    # Manually count at 0
+  non_rootable <- df$response_1 == 0 | df$response_2 == 0 | df$response_1 == df$response_2
+  lower_ci <- NULL
+  upper_ci <- NULL
+  if(!non_rootable){    
+    lower_try <- purrr::safely(stats::uniroot)(z_distance, interval=c(-0.999,0.999),
+                                       fx=test_score_mn,
+                                       ref_z = stats::qnorm(1 - alpha / 2),
+                                       s_x = df$response_1, n_x = df$n_1,
+                                       s_y = df$response_2, n_y = df$n_2, tol=1e-08)
+    lower_ci <- lower_try$result$root
+    upper_try <- purrr::safely(stats::uniroot)(z_distance, interval=c(lower_ci,0.999),
+                                       fx=test_score_mn,
+                                       ref_z = stats::qnorm(alpha / 2),
+                                       s_x = df$response_1, n_x = df$n_1,
+                                       s_y = df$response_2, n_y = df$n_2, tol=1e-08)
+    upper_ci <- upper_try$result$root
+  } 
+  if(non_rootable | is.null(lower_ci) | is.null(upper_ci)){
     z <- stats::qnorm((1 + conf.level) / 2)
 
     delta_vec <- seq(-0.99999, 0.99999, length.out = 1000000)
@@ -135,21 +150,8 @@ ci_prop_diff_mn <- function(x, by, conf.level = 0.95, delta = NULL, data = NULL)
     potential_vals <- delta_vec[which(-z < T_scores & T_scores < z)]
     lower_ci <- min(potential_vals)
     upper_ci <- max(potential_vals)
-  } else {
-    lower_ci <- stats::uniroot(z_distance, interval=c(-0.999,0.999),
-                                       fx=test_score_mn,
-                                       ref_z = stats::qnorm(1 - alpha / 2),
-                                       s_x = df$response_1, n_x = df$n_1,
-                                       s_y = df$response_2, n_y = df$n_2, tol=1e-08)$root
-
-    upper_ci <- stats::uniroot(z_distance, interval=c(lower_ci,0.999999),
-                                       fx=test_score_mn,
-                                       ref_z = stats::qnorm(alpha / 2),
-                                       s_x = df$response_1, n_x = df$n_1,
-                                       s_y = df$response_2, n_y = df$n_2, tol=1e-08)$root
-
-  }
-
+  } 
+ 
   statistic = NULL
   p.value = NULL
 
@@ -333,6 +335,7 @@ ci_prop_diff_mn_strata <- function(x, by, strata, method = c("score", "summary s
         eval(envir = data, enclos = parent.frame())
     )
   }
+
   # check inputs ---------------------------------------------------------------
   check_not_missing(x)
   check_not_missing(by)
@@ -379,11 +382,15 @@ ci_prop_diff_mn_strata <- function(x, by, strata, method = c("score", "summary s
     s_x <- response_df$response_1
     n_y <- response_df$n_2
     s_y <- response_df$response_2
+
+    if(0 %in% c(s_x, s_y)){
+        cli::cli_text("At least one stratum has a 0 response")
+      }
     # Calculate weights and diff in weighted proportions
     weights <-(n_x * n_y) / (n_x + n_y)
     names(weights) <- response_df$strata
-    tot_w <- sum(weights)
-    diff <- sum(s_x/n_x*weights)/tot_w - sum(s_y/n_y*weights)/tot_w
+    tot_w <- sum(weights, na.rm = TRUE)
+    diff <- sum(s_x/n_x*weights, na.rm = TRUE)/tot_w - sum(s_y/n_y*weights, na.rm = TRUE)/tot_w
 
     # Calculate confidence interval
     lower_ci <- stats::uniroot(z_distance, interval=c(-0.999,0.999),
@@ -409,12 +416,15 @@ ci_prop_diff_mn_strata <- function(x, by, strata, method = c("score", "summary s
 
     #SAS PROC FREQ Summary Score Estimate of the Common Risk Difference
     #https://support.sas.com/documentation/cdl/en/procstat/67528/HTML/default/viewer.htm#procstat_freq_details63.htm
+    
     estimate_df <- dplyr::tibble(
       x = x,
       by = as.numeric(as.factor(by)),
       strata = strata
     ) |>
       dplyr::group_by(strata) |>
+      dplyr::mutate(n_in_strata = dplyr::n()) |>
+      dplyr::filter(.data$n_in_strata > 1) |>
       dplyr::summarise(mn = list(ci_prop_diff_mn(x, by, conf.level =conf.level))) |>
       dplyr::mutate(
         low = purrr::map_dbl(.data$mn, "conf.low"),
@@ -443,6 +453,10 @@ ci_prop_diff_mn_strata <- function(x, by, strata, method = c("score", "summary s
 
       n_y <- response_df$n_2
       s_y <- response_df$response_2
+
+      if(0 %in% c(s_x, s_y)){
+        cli::cli_text("At least one stratum has a 0 response")
+      }
       # Calculate weights and diff in weighted proportions
       w <-(n_x * n_y) / (n_x + n_y)
 
@@ -453,6 +467,7 @@ ci_prop_diff_mn_strata <- function(x, by, strata, method = c("score", "summary s
 
   }
   df <- get_counts(x = x, by = by)
+
   structure(
     list(
       n = c(df$response_1, df$response_2),
@@ -501,14 +516,14 @@ ci_prop_diff_mn_strata <- function(x, by, strata, method = c("score", "summary s
 #' @keywords internal
 #' @noRd
 test_score_mn_weighted<-function(s_x, n_x, s_y, n_y, w, delta){
-  tot_w <- sum(w)
-  diff <- sum(s_x/n_x*w)/tot_w - sum(s_y/n_y*w)/tot_w
+  tot_w <- sum(w, na.rm = TRUE)
+  diff <- sum(s_x/n_x*w, na.rm = TRUE)/tot_w - sum(s_y/n_y*w, na.rm = TRUE)/tot_w
 
   mV <- variance_mn(s_x, n_x, s_y, n_y, delta)
 
   #equation 15
   den <- ((w/tot_w)^2)*mV
-  tot_den <- sum(den)
+  tot_den <- sum(den, na.rm = TRUE)
 
   zstat <- (diff-delta)/sqrt(tot_den)
   zstat
