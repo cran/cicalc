@@ -1,7 +1,7 @@
 Type: Package
 Package: cicalc
 Title: Calculate Confidence Intervals
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(
     person("Christina", "Fillmore", , "christina.e.fillmore@gsk.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-0595-2302")),
@@ -27,7 +27,7 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.3
 NeedsCompilation: no
-Packaged: 2026-05-08 13:44:42 UTC; christinafillmore
+Packaged: 2026-06-30 13:59:11 UTC; christinafillmore
 Author: Christina Fillmore [aut, cre] (ORCID:
     <https://orcid.org/0000-0003-0595-2302>),
   GlaxoSmithKline Research & Development Limited [cph, fnd],
@@ -35,4 +35,4 @@ Author: Christina Fillmore [aut, cre] (ORCID:
   Dan Lythgoe [aut] (ORCID: <https://orcid.org/0000-0002-4682-772X>)
 Maintainer: Christina Fillmore <christina.e.fillmore@gsk.com>
 Repository: CRAN
-Date/Publication: 2026-05-08 14:00:08 UTC
+Date/Publication: 2026-06-30 15:20:02 UTC

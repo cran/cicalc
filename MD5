@@ -1,13 +1,13 @@
-07267e64b84f742dd0df260d24d5a362 *DESCRIPTION
+704a79937450dcd0605db5d8fd50164c *DESCRIPTION
 33e82f246a4a841038b0fde6fbed7a42 *NAMESPACE
-6d6c1442a77b800f988c6ef04f60a81b *NEWS.md
+b0cc134fcf00547a7abe40f8f0a8cfbc *NEWS.md
 16941d2f78133f4b00c291d1c4b79ac4 *R/import-standalone-check_pkg_installed.R
 4c27e6891c2d5b8e593af80a19c37fb6 *R/import-standalone-checks.R
 25b4af5ffd6bf4dfa3eb5367d5de0408 *R/import-standalone-cli_call_env.R
-790565bddc134e782011b724aa296c91 *R/prop_ci.R
-f9b4ad18bfd3783330b5751583c09d42 *R/prop_ci_common_risk.R
+8e83bce2412e6d10a1be9decade68c25 *R/prop_ci.R
+60ad2b32172e09805bff03c064e5b686 *R/prop_ci_common_risk.R
 52ea8ba0600e500099b643af02085c51 *R/prop_ci_diff.R
-4d0aaeed7500879f5a20d4f3f97eaaa2 *R/prop_ci_mn.R
+3f09bda4f8431262a79f56cbebf6b0bc *R/prop_ci_mn.R
 786ae76ee98d8b4c8a50b03b303b87b7 *R/utils.R
 b25fbde957c56c50ce8b82ba1a6ce09f *R/zzz.R
 9d9df8e914d4f1714018d9aab5df82db *README.md
@@ -36,7 +36,7 @@ edc1a9829caec57502086d53e7af8bf4 *man/ci_prop_wilson.Rd
 5fe63511e5217b39f05b96f822b79c7a *man/get_counts.Rd
 131bd4ffae5e0169ac5ea8dcd509ca4e *tests/testthat.R
 6fd88b6409ecece383123e92a8633da7 *tests/testthat/_snaps/prop_ci.md
-36fb3029d4a26e45e7949f2f49b2167f *tests/testthat/_snaps/prop_ci_common_risk.md
+a5e15ec2e84d945d355ca8c6aaca9cc8 *tests/testthat/_snaps/prop_ci_common_risk.md
 00efa57bf644156e4d1e6583e5fbf46f *tests/testthat/_snaps/prop_ci_diff.md
 2ec3d4a3b26214931300a71f4008514c *tests/testthat/_snaps/prop_ci_mn.md
 d25ecab16840517183a45ecea939283c *tests/testthat/test-prop_ci.R
